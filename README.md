@@ -1,8 +1,8 @@
 # NPMjs Proxy — Home Assistant Add-on
 
-Verdaccio-based caching proxy for `registry.npmjs.org`, running as a Home Assistant OS add-on.
+Verdaccio-based proxy for `registry.npmjs.org`, running as a Home Assistant OS add-on.
 
-Point `npm` / `yarn` / `pnpm` at `http://homeassistant.local:4873` and all packages are fetched once from npmjs.org, then served from local cache in `/data/verdaccio/storage` (survives reboots, backups, and upstream outages).
+Point `npm` / `yarn` / `pnpm` at `http://homeassistant.local:4873`. By default it is a pure pass-through proxy; set `enable_cache: true` and packages are fetched once from npmjs.org, then served from local cache in `/data/verdaccio/storage` (survives reboots, backups, and upstream outages).
 
 ## Install
 
@@ -20,7 +20,8 @@ Add this Git repo URL under Add-on Store → ⋮ → Repositories, then install 
 ```yaml
 log_level: info          # debug|info|http|warn|error|fatal
 uplink: https://registry.npmjs.org/
-maxage: 30m              # how long to cache metadata (e.g. 10m, 1h, 24h)
+enable_cache: false      # true = cache upstream packages locally
+maxage: 30m              # how long to cache metadata when enable_cache is true (e.g. 10m, 1h, 24h)
 timeout: 30s             # upstream timeout
 max_body_size: 32mb      # max package publish size
 allow_offline: true      # serve cache + allow offline publish when upstream down
@@ -28,7 +29,7 @@ allow_publish: false     # false = read-only mirror; true = allow npm publish (p
 enable_web: false        # true = Verdaccio web UI on :4873
 ```
 
-Cache persists in `/data/verdaccio/storage` and is included in HA backups.
+Cache (when enabled) persists in `/data/verdaccio/storage` and is included in HA backups.
 
 ## Usage
 
@@ -64,7 +65,7 @@ npm config set registry https://registry.npmjs.org/
 2. `npm adduser --registry http://homeassistant.local:4873`
 3. `npm publish --registry http://homeassistant.local:4873`
 
-Default (`allow_publish: false`) disables signup (`max_users: -1`) so the proxy is a pure caching mirror.
+Default (`allow_publish: false`) disables signup (`max_users: -1`) so the proxy is read-only (no private packages can be published).
 
 ## Ports
 

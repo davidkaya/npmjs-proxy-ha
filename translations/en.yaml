@@ -5,9 +5,12 @@ configuration:
   uplink:
     name: Upstream registry
     description: Upstream npm registry URL (must end with /).
+  enable_cache:
+    name: Enable cache
+    description: Cache upstream packages locally. Off = pure pass-through proxy.
   maxage:
     name: Cache maxage
-    description: How long to cache upstream metadata (e.g. 30m, 2h).
+    description: How long to cache upstream metadata when caching is enabled (e.g. 30m, 2h).
   timeout:
     name: Upstream timeout
     description: Upstream request timeout (e.g. 30s).

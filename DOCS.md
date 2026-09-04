@@ -2,10 +2,11 @@
 
 ## What is this?
 
-A caching npm registry proxy (Verdaccio 6) with uplink to `https://registry.npmjs.org/`.
+A npm registry proxy (Verdaccio 6) with uplink to `https://registry.npmjs.org/`.
 
-- First `npm install` fetches tarballs/metadata from npmjs.org and stores them in `/data/verdaccio/storage`.
-- Repeat installs are served locally — faster LAN installs, lower WAN traffic, works briefly during upstream outages (per `maxage` / `allow_offline`).
+- By default it is a pure pass-through proxy (caching OFF).
+- Set `enable_cache: true` and the first `npm install` fetches tarballs/metadata from npmjs.org and stores them in `/data/verdaccio/storage`.
+- With caching on, repeat installs are served locally — faster LAN installs, lower WAN traffic, works briefly during upstream outages (per `maxage` / `allow_offline`).
 - Optional private-package publishing behind htpasswd auth.
 
 ## Installation
@@ -25,7 +26,8 @@ See `README.md`. After install, check the Log tab for:
 |--------|---------|-------------|
 | `log_level` | `info` | Verdaccio log level. |
 | `uplink` | `https://registry.npmjs.org/` | Upstream registry. Use a mirror e.g. `https://registry.npmmirror.com/` if desired. Must end with `/`. |
-| `maxage` | `30m` | Uplink metadata cache time. Longer = fewer upstream hits, slower freshness. |
+| `enable_cache` | `false` | Cache upstream packages locally. `false` = pure pass-through proxy. |
+| `maxage` | `30m` | Uplink metadata cache time (only used when `enable_cache` is `true`). Longer = fewer upstream hits, slower freshness. |
 | `timeout` | `30s` | Upstream request timeout. |
 | `max_body_size` | `32mb` | Max publish payload. Unused in mirror mode. |
 | `allow_offline` | `true` | Serve stale cache + allow `offline_publish` when upstream is down. |
@@ -37,6 +39,7 @@ See `README.md`. After install, check the Log tab for:
 ```yaml
 log_level: info
 uplink: https://registry.npmjs.org/
+enable_cache: true
 maxage: 2h
 timeout: 30s
 max_body_size: 32mb

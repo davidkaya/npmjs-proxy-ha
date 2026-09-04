@@ -50,6 +50,7 @@ get_option() {
 
 LOG_LEVEL="$(get_option 'log_level' 'info')"
 UPLINK="$(get_option 'uplink' 'https://registry.npmjs.org/')"
+ENABLE_CACHE="$(get_option 'enable_cache' 'false')"
 MAXAGE="$(get_option 'maxage' '30m')"
 TIMEOUT="$(get_option 'timeout' '30s')"
 MAX_BODY_SIZE="$(get_option 'max_body_size' '32mb')"
@@ -59,7 +60,7 @@ ENABLE_WEB="$(get_option 'enable_web' 'false')"
 
 bashio::log.info "Starting NPMjs Proxy..."
 bashio::log.info "Upstream uplink: ${UPLINK}"
-bashio::log.info "Cache maxage: ${MAXAGE}, offline allowed: ${ALLOW_OFFLINE}"
+bashio::log.info "Caching: ${ENABLE_CACHE}, maxage: ${MAXAGE}, offline allowed: ${ALLOW_OFFLINE}"
 
 mkdir -p "${STORAGE_DIR}"
 mkdir -p "$(dirname "${CONFIG_FILE}")"
@@ -72,15 +73,15 @@ if ! bashio::fs.file_exists "${HTPASSWD_FILE}"; then
 fi
 
 # Map allow_publish -> max_users
-# false (default, caching-only): -1 disables new user signup, so proxy is
-# effectively read-only but still caches upstream tarballs.
+# false (default, read-only): -1 disables new user signup, so no private
+# packages can be published (upstream proxying still works).
 # true: allow signup + publish of private packages.
 if bashio::var.true "${ALLOW_PUBLISH}"; then
     MAX_USERS="1000"
     bashio::log.info "Private publish ENABLED (max_users=1000)"
 else
     MAX_USERS="-1"
-    bashio::log.info "Private publish DISABLED (caching mirror mode, max_users=-1)"
+    bashio::log.info "Private publish DISABLED (read-only, max_users=-1)"
 fi
 
 # Map allow_offline -> offline_publish (can `npm publish` while upstream down)
@@ -88,6 +89,15 @@ if bashio::var.true "${ALLOW_OFFLINE}"; then
     OFFLINE_PUBLISH="true"
 else
     OFFLINE_PUBLISH="false"
+fi
+
+# Map enable_cache -> uplink cache (store upstream tarballs/metadata locally)
+if bashio::var.true "${ENABLE_CACHE}"; then
+    UPLINK_CACHE="true"
+    bashio::log.info "Uplink caching ENABLED (maxage=${MAXAGE})"
+else
+    UPLINK_CACHE="false"
+    bashio::log.info "Uplink caching DISABLED (pure pass-through proxy)"
 fi
 
 # Map enable_web -> web.enable
@@ -126,7 +136,7 @@ uplinks:
     maxage: ${MAXAGE}
     fail_timeout: 30s
     max_fails: 2
-    cache: true
+    cache: ${UPLINK_CACHE}
 
 packages:
   '@*/*':
