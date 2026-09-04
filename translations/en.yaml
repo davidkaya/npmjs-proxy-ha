@@ -1,0 +1,27 @@
+configuration:
+  log_level:
+    name: Log level
+    description: Verdaccio log verbosity.
+  uplink:
+    name: Upstream registry
+    description: Upstream npm registry URL (must end with /).
+  maxage:
+    name: Cache maxage
+    description: How long to cache upstream metadata (e.g. 30m, 2h).
+  timeout:
+    name: Upstream timeout
+    description: Upstream request timeout (e.g. 30s).
+  max_body_size:
+    name: Max body size
+    description: Maximum publish payload size.
+  allow_offline:
+    name: Allow offline
+    description: Serve cached packages when the upstream is unreachable.
+  allow_publish:
+    name: Allow publish
+    description: Allow npm publish / private packages. Off = read-only mirror.
+  enable_web:
+    name: Enable web UI
+    description: Serve the Verdaccio web interface on port 4873.
+network:
+  4873/tcp: Verdaccio npm registry (proxy to npmjs.org)

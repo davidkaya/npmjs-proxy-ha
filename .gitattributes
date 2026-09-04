@@ -1,0 +1,12 @@
+# Force LF line endings — the s6 service scripts break on CRLF
+# (#!/usr/bin/with-contenv bashio shebang), especially when cloned on Windows.
+* text=auto
+*.sh text eol=lf
+Dockerfile text eol=lf
+rootfs/etc/services.d/verdaccio/run text eol=lf
+rootfs/etc/services.d/verdaccio/finish text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
+.gitattributes text eol=lf
+.gitignore text eol=lf

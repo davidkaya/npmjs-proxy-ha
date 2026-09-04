@@ -1,0 +1,35 @@
+name: NPMjs Proxy
+description: Caching Verdaccio proxy for registry.npmjs.org — speeds up npm installs and survives outages
+version: 1.0.0
+slug: npmjs_proxy
+startup: services
+boot: auto
+init: false
+arch:
+  - aarch64
+  - amd64
+  - armv7
+ports:
+  4873/tcp: 4873
+ports_description:
+  4873/tcp: Verdaccio npm registry (proxy to npmjs.org)
+webui: http://[HOST]:[PORT:4873]/
+watchdog: tcp://[HOST]:[PORT:4873]
+options:
+  log_level: info
+  uplink: https://registry.npmjs.org/
+  maxage: 30m
+  timeout: 30s
+  max_body_size: 32mb
+  allow_offline: true
+  allow_publish: false
+  enable_web: false
+schema:
+  log_level: list(debug|info|http|warn|error|fatal)
+  uplink: url
+  maxage: str
+  timeout: str
+  max_body_size: str
+  allow_offline: bool
+  allow_publish: bool
+  enable_web: bool
